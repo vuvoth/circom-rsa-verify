@@ -4,5 +4,5 @@
 
 [submodule "circom-ecdsa"]
 	path = circom-ecdsa
-	url = https://github.com/agnxsh/circom-ecdsa.git
-	branch = 0xagnish/circom_tester-fix
+	url = https://github.com/vuvoth/circom-ecdsa
+	branch = bigint-fix

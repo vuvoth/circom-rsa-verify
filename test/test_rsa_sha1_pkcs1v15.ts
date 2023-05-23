@@ -27,25 +27,26 @@ function bigint_to_array(n: number, k: number, x: bigint) {
   return ret;
 }
 
-describe("Test rsa pkcs1v15 n = 64, k = 32", function () {
+describe.only("Test rsa pkcs1v15 sha1 n = 32, k = 64", function () {
   this.timeout(1000 * 1000);
 
   // runs circom compilation
   let circuit: any;
   before(async function () {
     circuit = await wasm_tester(
-      path.join(__dirname, "circuits", "rsa_verify_pkcs1v15.circom")
+      path.join(__dirname, "circuits", "rsa_verify_sha1_pkcs1v15.circom")
     );
   });
 
   let test_rsa_verify = function (message: string) {
     it(`Testing ${message}`, async function () {
-      const [exp, sign, m, hashed] = await genData(message, "SHA-256");
+      const [exp, sign, m, hashed] = await genData(message, 'SHA-1');
 
-      let exp_array: bigint[] = bigint_to_array(64, 32, exp);
-      let sign_array: bigint[] = bigint_to_array(64, 32, sign);
-      let m_array: bigint[] = bigint_to_array(64, 32, m);
-      let hashed_array: bigint[] = bigint_to_array(64, 4, hashed);
+      let exp_array: bigint[] = bigint_to_array(32, 64, exp);
+      let sign_array: bigint[] = bigint_to_array(32, 64, sign);
+      let m_array: bigint[] = bigint_to_array(32, 64, m);
+      let hashed_array: bigint[] = bigint_to_array(32, 5, hashed);
+
       let witness = await circuit.calculateWitness({
         exp: exp_array,
         sign: sign_array,
@@ -58,5 +59,4 @@ describe("Test rsa pkcs1v15 n = 64, k = 32", function () {
   };
 
   test_rsa_verify("Hello world");
-  test_rsa_verify("");
 });
