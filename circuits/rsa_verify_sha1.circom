@@ -2,22 +2,6 @@ pragma circom 2.0.0;
 
 include "./pow_mod.circom";
 
-template NumToBits(n) {
-    signal input in;
-    signal output out[n];
-    var lc1=0;
-
-    var e2=1;
-    for (var i = 0; i<n; i++) {
-        out[i] <-- (in >> i) & 1;
-        out[i] * (out[i] -1 ) === 0;
-        lc1 += out[i] * e2;
-        e2 = e2+e2;
-    }
-
-    lc1 === in;
-}
-
 // Pkcs1v15 + Sha1, exp 65537
 // w, nb, e_bits, hashLen
 template RsaSha1VerifyPkcs1v15(w, nb, e_bits, hashLen) {
@@ -30,7 +14,7 @@ template RsaSha1VerifyPkcs1v15(w, nb, e_bits, hashLen) {
 
     // sign ** exp mod modulus
     component pm = PowerMod(w, nb, e_bits);
-    for (var i  = 0; i < nb; i++) {
+    for (var i = 0; i < nb; i++) {
         pm.base[i] <== sign[i];
         pm.exp[i] <== exp[i];
         pm.modulus[i] <== modulus[i];
@@ -62,11 +46,11 @@ template RsaSha1VerifyPkcs1v15(w, nb, e_bits, hashLen) {
     // em = 256 bytes, tLen = 35
     // ps_length = 256 - 35 - 3 = 218 bytes = 1744 bits = ⌊54.5⌋ * 32 bits words
     // ps value for 32 bits words is 0xFFFFFFFF == 4294967295
-    for (var i = 9; i < 31; i++) {
+    for (var i = 9; i < 63; i++) {
         pm.out[i] === 4294967295;
     }
 
     // 5. Remains 16 bits (0xffff) from PS and 0x00 0x01
     // Hence: 0x0001FFFF == 131071
-    pm.out[31] === 131071;
+    pm.out[63] === 131071;
 }

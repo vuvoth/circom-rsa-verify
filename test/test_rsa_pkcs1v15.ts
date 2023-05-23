@@ -1,5 +1,6 @@
 import path = require("path");
 import { expect, assert } from "chai";
+import { genData } from "./utils";
 const circom_tester = require("circom_tester");
 const wasm_tester = circom_tester.wasm;
 
@@ -26,47 +27,6 @@ function bigint_to_array(n: number, k: number, x: bigint) {
   return ret;
 }
 
-async function genData(): Promise<[bigint, bigint, bigint, bigint]> {
-  const { subtle } = require("crypto");
-  const publicExponent = new Uint8Array([1, 0, 1]);
-
-  async function generateRsaKey(modulusLength = 2048, hash = "SHA-256") {
-    const { publicKey, privateKey } = await subtle.generateKey(
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        modulusLength,
-        publicExponent,
-        hash,
-      },
-      true,
-      ["sign", "verify"]
-    );
-
-    return { publicKey, privateKey };
-  }
-
-  let keys = await generateRsaKey();
-
-  let public_key = await subtle.exportKey("jwk", keys.publicKey);
-
-  let enc = new TextEncoder();
-  let text = enc.encode("Hello world");
-  let hash = BigInt(
-    "0x" + Buffer.from(await subtle.digest("SHA-256", text)).toString("hex")
-  );
-  let sign_buff = await subtle.sign(
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-1" },
-    keys.privateKey,
-    text
-  );
-
-  let e = BigInt("0x" + Buffer.from(public_key.e, "base64url").toString("hex"));
-  let n = BigInt("0x" + Buffer.from(public_key.n, "base64url").toString("hex"));
-  let sign = BigInt("0x" + Buffer.from(sign_buff).toString("hex"));
-
-  return [e, sign, n, hash];
-}
-
 describe("Test rsa pkcs1v15 n = 64, k = 32", function () {
   this.timeout(1000 * 1000);
 
@@ -78,16 +38,9 @@ describe("Test rsa pkcs1v15 n = 64, k = 32", function () {
     );
   });
 
-  //   console.log(await genData());
-  // a, e, m, (a ** e) % m
-  let test_cases: Array<[bigint, bigint, bigint, bigint]> = [];
-
-  test_cases.push([0n, 0n, 0n, 0n]);
-
-  let test_rsa_verify = function (x: [bigint, bigint, bigint, bigint]) {
-    it(`Testing `, async function () {
-      const [exp, sign, m, hashed] = await genData();
-
+  let test_rsa_verify = function (message: string) {
+    it(`Testing ${message}`, async function () {
+      const [exp, sign, m, hashed] = await genData(message, "SHA-256");
 
       let exp_array: bigint[] = bigint_to_array(64, 32, exp);
       let sign_array: bigint[] = bigint_to_array(64, 32, sign);
@@ -104,5 +57,6 @@ describe("Test rsa pkcs1v15 n = 64, k = 32", function () {
     });
   };
 
-  test_cases.forEach(test_rsa_verify);
+  test_rsa_verify("Hello world");
+  test_rsa_verify("");
 });
