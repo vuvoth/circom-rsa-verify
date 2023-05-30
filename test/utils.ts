@@ -31,7 +31,6 @@ export async function genData(
 
   let enc = new TextEncoder();
   let text = enc.encode(data);
-  console.log(await subtle.digest(HASH_ALGO, text));
   let hash = BigInt('0x' + Buffer.from(await subtle.digest(HASH_ALGO, text)).toString('hex'));
   
   let sign_buff = await subtle.sign(

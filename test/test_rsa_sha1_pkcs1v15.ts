@@ -27,7 +27,7 @@ function bigint_to_array(n: number, k: number, x: bigint) {
   return ret;
 }
 
-describe.only("Test rsa pkcs1v15 sha1 n = 32, k = 64", function () {
+describe("Test rsa pkcs1v15 sha1 n = 64, k = 32", function () {
   this.timeout(1000 * 1000);
 
   // runs circom compilation
@@ -42,11 +42,11 @@ describe.only("Test rsa pkcs1v15 sha1 n = 32, k = 64", function () {
     it(`Testing ${message}`, async function () {
       const [exp, sign, m, hashed] = await genData(message, 'SHA-1');
 
-      let exp_array: bigint[] = bigint_to_array(32, 64, exp);
-      let sign_array: bigint[] = bigint_to_array(32, 64, sign);
-      let m_array: bigint[] = bigint_to_array(32, 64, m);
-      let hashed_array: bigint[] = bigint_to_array(32, 5, hashed);
-
+      let exp_array: bigint[] = bigint_to_array(63, 32, exp);
+      let sign_array: bigint[] = bigint_to_array(64, 32, sign);
+      let m_array: bigint[] = bigint_to_array(64, 32, m);
+      let hashed_array: bigint[] = bigint_to_array(64, 3, hashed);
+      // console.log(hashed_array);
       let witness = await circuit.calculateWitness({
         exp: exp_array,
         sign: sign_array,
