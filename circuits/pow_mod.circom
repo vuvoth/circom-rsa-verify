@@ -26,43 +26,39 @@ template PowerMod(w, nb, e_bits) {
     var result_index=0;
     var base_index=0;
     var muls_index=0;
+ 
     for (var i = 0; i< e_bits; i++) {
         if (i == 0 || i == e_bits - 1) {
-           if (i == 0) {
-               for(var j = 0; j < nb; j ++) {
+            if (i == 0) {
+                for(var j = 0; j < nb; j ++) {
                     if (j == 0) {
                         muls[muls_index].a[j] <== 1;
                     } else {
                         muls[muls_index].a[j] <== 0;
                     }
-                    muls[muls_index].b[j] <== base[j];
-               }
-           } else {
-               for(var j = 0; j < nb; j++) {
-                   muls[muls_index].a[j] <== muls[result_index].out[j];
-                   muls[muls_index].b[j] <== muls[base_index].out[j];
-               }
-           }
+                   
+                }
+                muls[muls_index].b <== base;
+            } else {
+                muls[muls_index].a <== muls[result_index].out;
+                muls[muls_index].b <== muls[base_index].out;
+            }
             result_index = muls_index;
             muls_index++;
         }
 
         if (base_index == 0) {
-             for (var j = 0; j < nb; j++) {
-                 muls[muls_index].a[j] <== base[j];
-                 muls[muls_index].b[j] <== base[j];
-             }
+                muls[muls_index].a <== base;
+                muls[muls_index].b <== base;
         } else {
-             for (var j = 0; j < nb; j++) {
-                 muls[muls_index].a[j] <== muls[base_index].out[j];
-                 muls[muls_index].b[j] <== muls[base_index].out[j];
-             }
+            muls[muls_index].a <== muls[base_index].out;
+            muls[muls_index].b <== muls[base_index].out; 
         }
+
         base_index = muls_index;
         muls_index++;
     }
 
-    for (var i = 0; i < nb; i++) {
-        out[i] <== muls[result_index].out[i];
-    }
+    out <== muls[result_index].out;
+
 }

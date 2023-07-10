@@ -16,11 +16,10 @@ template RsaSha1VerifyPkcs1v15(w, nb, e_bits, hashLen) {
 
     // sign ** exp mod modulus
     component pm = PowerMod(w, nb, e_bits);
-    for (var i = 0; i < nb; i++) {
-        pm.base[i] <== sign[i];
-        pm.exp[i] <== exp[i];
-        pm.modulus[i] <== modulus[i];
-    }
+
+    pm.base <== sign;
+    pm.exp <== exp;
+    pm.modulus <== modulus;
 
     // 1. Check hashed data
     // SHA1: 160 bits => 2 first number and 32 first bit of third number 
